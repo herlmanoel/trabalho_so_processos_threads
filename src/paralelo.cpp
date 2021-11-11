@@ -76,9 +76,8 @@ int main(int argc, char *argv[]) {
         if(processo_filho[i] == (pid_t) 0) {
             string nomeArquivo = to_string(qtdProcessos) + "_" + to_string(qtdProcessos) + "_" + to_string(i) + "_arquivo"+ ".txt";
             ofstream out(nomeArquivo);
-            for(int j = 0; j < qtdProcessos; j++) {
+            for(int j = 0; j < P; j++) {
                 int n = calculaElemento(m1, m2, i, j);
-                out << "C_" << i  << "_" << j << " " <<  n <<  "\n";
             }  
             // cout << i << " " << " # " << getpid() << endl;
             out.close(); 

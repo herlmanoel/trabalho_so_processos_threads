@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.dat": "csv (pipe)",
+        "*.csv": "csv (semicolon)",
+        "iostream": "cpp"
+    }
+}
