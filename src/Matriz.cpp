@@ -149,6 +149,7 @@ class Matriz {
             for (int i = 0; i < matriz.linhas; i++) {
                 matriz.matriz.push_back(vector<int>());
                 for (int j = 0; j < matriz.colunas; j++) {
+                    cout << rand() % 10 + 1 << endl;
                     matriz.matriz[i].push_back(rand() % 10 + 1);
                 }
             }
