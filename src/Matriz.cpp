@@ -18,6 +18,10 @@ class Matriz {
         int colunas;
         vector<vector<int>> matriz;
 
+        Matriz() {
+            
+        }
+
         Matriz(string nome) {
             lerMatriz(nome);
         }
@@ -147,13 +151,11 @@ class Matriz {
             Matriz matriz = Matriz(linhas, colunas);
 
             for (int i = 0; i < matriz.linhas; i++) {
-                matriz.matriz.push_back(vector<int>());
                 for (int j = 0; j < matriz.colunas; j++) {
-                    cout << rand() % 10 + 1 << endl;
-                    matriz.matriz[i].push_back(rand() % 10 + 1);
+                    int elemento = (rand() % 10) + 1;
+                    matriz.matriz[i][j] = elemento;
                 }
             }
-
             this->escreverNoArquivo(nome, &matriz);  
         }
 
