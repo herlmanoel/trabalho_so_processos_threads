@@ -12,7 +12,7 @@
 #include <sys/shm.h>
 
 #include "Matriz.cpp"
-
+#include <math.h> 
 using namespace std;
 
 int calculaElemento(Matriz* m1, Matriz* m2, int linha, int coluna) {
@@ -23,11 +23,17 @@ int calculaElemento(Matriz* m1, Matriz* m2, int linha, int coluna) {
         return elemento;
     }
 
-
+// cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ paralelo.cpp -o paralelo && "/home/herlmanoel/dev/SO/exercicio01/src/"paralelo arquivo01.txt arquivo02.txt 10
 int main(int argc, char *argv[]) {
     string arquivo_matriz_01 = argv[1];
     string arquivo_matriz_02 = argv[2];
     int P = atoi(argv[3]);
+
+    string pathBase = "data/";
+    string pathParticoes = pathBase + "particoes/";
+
+    arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
+    arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
 
     // int P = 4;
     // string arquivo_matriz_01 = "arquivo01.txt";
@@ -36,8 +42,8 @@ int main(int argc, char *argv[]) {
     Matriz* m1 = new Matriz(arquivo_matriz_01);
     Matriz* m2 = new Matriz(arquivo_matriz_02);
 
-    Matriz* res = new Matriz(m1->linhas, m2->colunas);
-    vector<vector<int>>* matrizResultado = &(res->matriz);
+    // m1->printMatriz();
+    // m2->printMatriz();
 
     int qtdElementos = m1->linhas * m2->colunas;
     int qtdProcessos = qtdElementos  / P;
@@ -49,26 +55,11 @@ int main(int argc, char *argv[]) {
 
     pid_t processo_filho[qtdProcessos];
 
-    m1->gerarMatrizArquivo(6, 6, "arquivo01.txt");
-    m1->gerarMatrizArquivo(6, 6, "arquivo02.txt");
-
-    // res->printMatriz();
-
-
-    // m1->printMatriz();
-    // cout << endl << endl;
-    // m2->printMatriz();
-    // cout << endl << endl;
-
-    // res->printMatriz();
-    
-
-    // cout << "Pai #" << getpid() << endl;
-
     for(int i = 0; i < qtdProcessos; i++) {
         processo_filho[i] = fork();
 
         if(processo_filho[i] == (pid_t) 0) {
+
             int inicio = i;
             int fim = P - 1;
             
@@ -77,50 +68,67 @@ int main(int argc, char *argv[]) {
                 fim = ((i+1) * P) - 1;
             }
 
-            // cout << "inicio: " << inicio << endl;
-            // cout << "fim: " << fim << endl;
-        
-            string nomeArquivo = to_string(qtdProcessos) + "_" + to_string(qtdProcessos) + "_" + to_string(i) + "_arquivo"+ ".txt";
+            
+            string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
             ofstream out(nomeArquivo);
-            // cout << inicio << " " << fim << endl;
+
+            string conteudoArquivoPorProcessso = "";
+
+            steady_clock::time_point begin = steady_clock::now();
             for(int j = inicio; j <= fim; j++) {
-                int l = j / 6;
-                int c = j % 6; 
+                int linha = j / 6;
+                int coluna = j % 6; 
                 
-                int n = calculaElemento(m1, m2, l, c);
-                out << l << "_" << c << " "<< n << endl;
+                int elemento = calculaElemento(m1, m2, linha, coluna);
+                
+
+                out <<  
+                    to_string(linha) + "_" + to_string(coluna) +
+                    " " + to_string(elemento)  + "\n";
                 int indicePosterior = j + 1;
                 if (indicePosterior >= qtdElementos) {
                     break;
                 }
-            }  
-            // cout << endl;
-            
-            // cout << i << " " << " # " << getpid() << endl;
+            } 
+            steady_clock::time_point end = steady_clock::now();
+
+            out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
+            // cout << "\n \n" << "Tempo: " << duration_cast<microseconds>(end - begin).count() << " [us]" << endl;
+
+            // out << conteudoArquivoPorProcessso;
             out.close(); 
             exit(0);
-        } else {
+        } else  {
             wait(NULL);
         }
     }  
 
-    string nomeArquivoCompleto = "arquivoCompleto.txt";
+    // concatena os arquivos 
+    string nomeArquivoCompleto = pathBase + "matriz_result.txt";
     ofstream out(nomeArquivoCompleto);
+    float tempoTotal = 0.0;
     for (size_t i = 0; i < qtdProcessos; i++) {
-        string nomeArquivo = to_string(qtdProcessos) + "_" + to_string(qtdProcessos) + "_" + to_string(i) + "_arquivo"+ ".txt";
+        string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
         string filename(nomeArquivo);
         string line;
         ifstream input_file(filename);
 
         int count = 0;
         while (getline(input_file, line)){
-            out << line << endl; 
+
+            vector<string> vectorLine = m1->split(line, " ");
+            if(!vectorLine[0].compare("TEMPO")) {
+                float tempo = stof(vectorLine[1]);
+                tempoTotal += tempo; 
+                continue;
+            }
+            out << line << endl;
         }
     }
+    double tempoMili = tempoTotal / pow (10, 6);
+    out << "TEMPO " << tempoMili << endl;
     out.close(); 
     
-        
 
-    // res->printMatriz((*matrizResultado));
     return 0;
 }

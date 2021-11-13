@@ -76,8 +76,18 @@ class Matriz {
                 vector<string> linhaVector = this->split(line, " ");
                 this->linhas = stoi(linhaVector[0]);
                 this->colunas = stoi(linhaVector[1]);
+
                 break;
             }
+
+            for (int i = 0; i < this->linhas; i++) {
+                this->matriz.push_back(vector<int>());
+                this->matriz[i].reserve(this->colunas * sizeof(int));
+            }
+            
+            for (int j = 0; j < this->colunas; j++) {
+                this->matriz[j].push_back(0);
+            } 
         }
 
         void lerMatriz(string nome) {
@@ -95,21 +105,13 @@ class Matriz {
             while (getline(input_file, line)){
                 vector<string> linhaVector = this->split(line, " ");
                 if(count == 0) {
-
-                    for (int i = 0; i < this->linhas; i++) {
-                        matriz.push_back(vector<int>());
-                        matriz[i].push_back(0);
-                    }
-
                     count++;
                     continue;
                 }
 
-            
                 vector<string> indicesVector = this->split(linhaVector[0], "_");
                 int i = stoi(indicesVector[1]);
                 int j = stoi(indicesVector[2]);       
-                
                 matriz[i][j] = stoi(linhaVector[1]);
             }
         }
