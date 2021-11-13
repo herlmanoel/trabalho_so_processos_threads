@@ -1,46 +1,164 @@
-#include <iostream>
-
-
 #include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <chrono>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
 
+#include <unistd.h>
+
+#include "Matriz.cpp"
+#include <math.h> 
 using namespace std;
 
-// add para executar -lpthread
-// -lpthread
-
-void * hello_word(void * tid) {
-    cout << "Hollo Word. Esta é a thread " << (int) (size_t) tid << "\n";
-    pthread_exit(NULL);
+int calculaElemento(Matriz* m1, Matriz* m2, int linha, int coluna) {
+        int elemento = 0;
+        for (int i = 0; i < m1->colunas; i++) {
+            elemento += m1->matriz[linha][i] * m2->matriz[i][coluna];
+        }
+        return elemento;
 }
+struct argumentos_s {
+    Matriz *m1;
+    Matriz *m2;
+    int P;
+    int i;
+    int qtdElementos;
+    string pathParticoes;
+};
 
-// neste código temos duas threads a que executa o main e a que executa o hello_word
-int main(int argc, char const *argv[]) {
-    pthread_t thread; // num da thread
-    int status; 
-    void * thread_return;
+void * calcularThread(void *args) {
+    struct argumentos_s* argumentos = (struct argumentos_s*) (args);
+    int i = argumentos->i;
+    int P = argumentos->P;
+    int qtdElementos = argumentos->qtdElementos;
+    string pathParticoes = argumentos->pathParticoes;
+    Matriz* m1 = argumentos->m1;
+    Matriz* m2 = argumentos->m2;
     
-    cout << "Processo principal criando a Thread \n";
-    status = pthread_create(&thread, NULL, hello_word, 0);
-    // &thread -> ao final da execução ela tem o num da thread
-    // hello_word -> fun que determina o que a thread vai fazer 
-    // 0 -> é uma maneira para eu conseguir identificar quais threads to criando: void * tid
+    int inicio = i;
+    int fim = P - 1;
 
-    if(status != 0 ) {
-        cout << "Erro na criação da thread. \n Código de erro: " << status << "\n";
-        return 1;
+    if (inicio > 0) {
+        inicio = i * P;
+        fim = ((i+1) * P) - 1;
     }
 
-    cout << "Esperando thread finalizar \n";
 
-    // pthread_join -> diz qual a thread to esperando terminar
-    pthread_join(thread, &thread_return);
-    //  &thread_return armazena o return da função
+    string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
+    ofstream out(nomeArquivo);
 
-    cout << "Thread finalizada \n";
+    string conteudoArquivoPorProcessso = "";
 
-    cout << "Processo pai vai finalizar \n";
+    steady_clock::time_point begin = steady_clock::now();
+    for(int j = inicio; j <= fim; j++) {
+        int linha = j / 6;
+        int coluna = j % 6; 
+
+        int elemento = calculaElemento(m1, m2, linha, coluna);
+
+
+        out <<  
+            to_string(linha) + "_" + to_string(coluna) +
+            " " + to_string(elemento)  + "\n";
+        int indicePosterior = j + 1;
+        if (indicePosterior >= qtdElementos) {
+            break;
+        }
+    } 
+    steady_clock::time_point end = steady_clock::now();
+
+    out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
+    // cout << "\n \n" << "Tempo: " << duration_cast<microseconds>(end - begin).count() << " [us]" << endl;
+
+    // out << conteudoArquivoPorProcessso;
+    out.close();  
+
+    pthread_exit(NULL);  
+}
+
+
+
+// cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ paralelo.cpp -o paralelo && "/home/herlmanoel/dev/SO/exercicio01/src/"paralelo arquivo01.txt arquivo02.txt 10
+// cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ thread_im.cpp -o thread_im -pthread && "/home/herlmanoel/dev/SO/exercicio01/src/"thread_im arquivo01.txt arquivo02.txt 3
+int main(int argc, char *argv[]) {
+    string arquivo_matriz_01 = argv[1];
+    string arquivo_matriz_02 = argv[2];
+    int P = atoi(argv[3]);
+
+    string pathBase = "data/";
+    string pathParticoes = pathBase + "particoes/";
+
+    arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
+    arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
+
+    // int P = 4;
+    // string arquivo_matriz_01 = "arquivo01.txt";
+    // string arquivo_matriz_02 = "arquivo02.txt";
+
+    Matriz* m1 = new Matriz(arquivo_matriz_01);
+    Matriz* m2 = new Matriz(arquivo_matriz_02);
+
+    m1->printMatriz();
+    m2->printMatriz();
+
+    int qtdElementos = m1->linhas * m2->colunas;
+    int qtdProcessos = qtdElementos  / P;
+    int resto = qtdElementos % P;
+
+    if(resto > 0) {
+        qtdProcessos++;
+    }
+
+    pthread_t threads[qtdProcessos];
+    int status;
+    void *retorno_thread;
+
     
+
+    for(int i = 0; i < qtdProcessos; i++) {
+        struct argumentos_s argumentos;
+        argumentos.m1 = m1;
+        argumentos.m2 = m2;
+        argumentos.P = P;
+        argumentos.i = i;
+        argumentos.pathParticoes = pathParticoes;
+        argumentos.qtdElementos = qtdElementos;
+        status = pthread_create(&threads[i], NULL, calcularThread, (void *)(argumentos_s *) &argumentos);
+
+        if(status != 0) {
+            cout << "Erro na criação da thread. Código de Erro: " << status << endl;
+        }
+        // free(argumentos);
+    }  
+
+    // concatena os arquivos 
+    string nomeArquivoCompleto = pathBase + "matriz_result.txt";
+    ofstream out(nomeArquivoCompleto);
+    float tempoTotal = 0.0;
+    for (size_t i = 0; i < qtdProcessos; i++) {
+        string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
+        string filename(nomeArquivo);
+        string line;
+        ifstream input_file(filename);
+
+        int count = 0;
+        while (getline(input_file, line)){
+
+            vector<string> vectorLine = m1->split(line, " ");
+            if(!vectorLine[0].compare("TEMPO")) {
+                float tempo = stof(vectorLine[1]);
+                tempoTotal += tempo; 
+                continue;
+            }
+            out << line << endl;
+        }
+    }
+    double tempoMili = tempoTotal / pow (10, 6);
+    out << "TEMPO " << tempoMili << endl;
+    out.close(); 
+    
+
     return 0;
 }

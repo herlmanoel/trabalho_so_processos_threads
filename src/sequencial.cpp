@@ -3,67 +3,52 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "Matriz.cpp"
 
 using namespace std;
 using namespace std::chrono;
 
 vector<vector<int>> n1;
 
-// g++ arquivo01.cpp -Wall -o prog && prog
+// cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ sequencial.cpp -o sequencial && "/home/herlmanoel/dev/SO/exercicio01/src/"sequencial arquivo01.txt arquivo02.txt
 int main(int argc, char *argv[]) {
-    // int dim_n1 = atoi(argv[1]);
-    // int dim_m1 = atoi(argv[2]);
-    // int dim_n2 = atoi(argv[3]);
-    // int dim_m2 = atoi(argv[4]);
+    string arquivo_matriz_01 = argv[1];
+    string arquivo_matriz_02 = argv[2];
 
-    int dim_n1 = 4;
-    int dim_m1 = 4;
-    int dim_n2 = 4;
-    int dim_m2 = 4;
+    string pathBase = "data/";
 
-    vector<vector<int>> n1;
+    arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
+    arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
 
-    for (int i = 0; i < dim_n1; i++) {
-        n1.push_back(vector<int>());
-        for (int j = 0; j < dim_m1; j++) {
-            n1[i].push_back(rand() % 10 + 1);
-        }
-    }   
-        
+    // int P = 4;
+    // string arquivo_matriz_01 = "arquivo01.txt";
+    // string arquivo_matriz_02 = "arquivo02.txt";
 
-    vector<vector<int>> n2;
-    for (int i = 0; i < dim_n2; i++) {
-        n2.push_back(vector<int>());
-        for (int j = 0; j < dim_m2; j++) {
-            n2[i].push_back(rand() % 10 +1);
-        }
-    }
-
+    Matriz* m1 = new Matriz(arquivo_matriz_01);
+    Matriz* m2 = new Matriz(arquivo_matriz_02);
     
     vector<vector<int>> res;
     steady_clock::time_point begin = steady_clock::now();
-    for (int i = 0; i < dim_m1; i++) {
+    for (int i = 0; i < m1->linhas; i++) {
         res.push_back(vector<int>());
-        for (int j = 0; j < dim_m2; j++) {
+        for (int j = 0; j < m2->colunas; j++) {
             res[i].push_back(0);
-            for (int k = 0; k < dim_m1; k++) {
-                res[i][j] += n1[i][k] * n2[k][j];
+            for (int k = 0; k < m1->linhas; k++) {
+                res[i][j] += m1->matriz[i][k] * m2->matriz[k][j];
             }
         }
     }
     steady_clock::time_point end = steady_clock::now();
-    cout << "\n \n" << "Tempo: " << duration_cast<milliseconds>(end - begin).count() << " [ms]" << endl;
-
-
-	ofstream out("arquivo02.txt");
-    out << dim_m1  << " " <<  dim_m2 <<  "\n"; 
-    for (int i = 0; i < dim_m1; i++) {
-        for (int j = 0; j < dim_m2; j++) {
+    string tempo = "Tempo " + to_string(duration_cast<milliseconds>(end - begin).count()) + "\n";
+    string nomeArquivoCompleto = pathBase + "matriz_result.txt";
+	ofstream out(nomeArquivoCompleto);
+    out << m1->linhas  << " " <<  m2->colunas <<  "\n"; 
+    for (int i = 0; i < m1->linhas; i++) {
+        for (int j = 0; j < m2->colunas; j++) {
             out << "C_" << i  << "_" << j << " " <<  res[i][j] <<  "\n"; 
-            // out << res[i][j] <<  " ";   
         }
-        // out <<  "\n"; 
     }
+    out << tempo;
 	out.close();
     
     return 0;
