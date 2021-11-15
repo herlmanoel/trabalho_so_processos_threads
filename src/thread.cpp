@@ -111,30 +111,30 @@ int main(int argc, char *argv[]) {
     }
     delete [] threads;
     // concatena os arquivos 
-    // string nomeArquivoCompleto = pathBase + "matriz_result.txt";
-    // ofstream out(nomeArquivoCompleto);
-    // float tempoTotal = 0.0;
-    // for (size_t i = 0; i < qtdThreads; i++) {
-    //     string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
-    //     string filename(nomeArquivo);
-    //     string line;
-    //     ifstream input_file(filename);
+    string nomeArquivoCompleto = pathBase + "matriz_result.txt";
+    ofstream out(nomeArquivoCompleto);
+    float tempoTotal = 0.0;
+    for (size_t i = 0; i < qtdThreads; i++) {
+        string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
+        string filename(nomeArquivo);
+        string line;
+        ifstream input_file(filename);
 
-    //     int count = 0;
-    //     while (getline(input_file, line)){
+        int count = 0;
+        while (getline(input_file, line)){
 
-    //         vector<string> vectorLine = m1->split(line, " ");
-    //         if(!vectorLine[0].compare("TEMPO")) {
-    //             float tempo = stof(vectorLine[1]);
-    //             tempoTotal += tempo; 
-    //             continue;
-    //         }
-    //         out << line << endl;
-    //     }
-    // }
-    // double tempoMili = tempoTotal / pow (10, 6);
-    // out << "TEMPO " << tempoMili << endl;
-    // out.close(); 
+            vector<string> vectorLine = m1->split(line, " ");
+            if(!vectorLine[0].compare("TEMPO")) {
+                float tempo = stof(vectorLine[1]);
+                tempoTotal += tempo; 
+                continue;
+            }
+            out << line << endl;
+        }
+    }
+    double tempoMili = tempoTotal / pow (10, 6);
+    out << "TEMPO " << tempoMili << endl;
+    out.close(); 
     
 
     return 0;
