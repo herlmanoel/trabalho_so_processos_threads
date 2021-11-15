@@ -4,7 +4,7 @@
 #include <string>
 #include <fstream>
 #include "Matriz.cpp"
-
+#include <math.h> 
 using namespace std;
 using namespace std::chrono;
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
             }
         }
         steady_clock::time_point end = steady_clock::now();
-        string tempoMili = to_string(duration_cast<milliseconds>(end - begin).count());
+        string tempoMili = to_string(duration_cast<microseconds>(end - begin).count());
         string tempo = "Tempo " + tempoMili + "\n";
         string nomeArquivoCompleto = pathBase + "matriz_result.txt";
         ofstream out(nomeArquivoCompleto);
@@ -51,8 +51,10 @@ int main(int argc, char *argv[]) {
                 out << "C_" << i  << "_" << j << " " <<  res[i][j] <<  "\n"; 
             }
         }
-        out << tempo;
         float tempoFloat = stof(tempoMili);
+        tempoFloat = tempoFloat / pow(10, 6);
+        out << tempoFloat;
+        
         cout <<  "TEMPO [" << z << "]: " << tempoFloat << endl;
         soma += tempoFloat;
         out.close();

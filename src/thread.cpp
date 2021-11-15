@@ -21,7 +21,7 @@ int calculaElemento(Matriz* m1, Matriz* m2, int linha, int coluna) {
 }
 
 
-//  cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ thread_c.cpp -o thread_c -pthread && "/home/herlmanoel/dev/SO/exercicio01/src/"thread_c arquivo01.txt arquivo02.txt 3
+//  cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ thread.cpp -o thread -pthread && "/home/herlmanoel/dev/SO/exercicio01/src/"thread arquivo01.txt arquivo02.txt 3
 void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matriz * m1, Matriz * m2) {
     
 
@@ -56,7 +56,7 @@ void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matr
     } 
     steady_clock::time_point end = steady_clock::now();
 
-    out << "TEMPO " + to_string(duration_cast<milliseconds>(end - begin).count()) + "\n";
+    out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
 
     out << conteudoArquivoPorProcessso;
     out.close();  
@@ -136,6 +136,7 @@ int main(int argc, char *argv[]) {
                 out << line << endl;
             }
         }
+        tempoTotal = tempoTotal / pow(10, 6);
         out << "TEMPO " << tempoTotal << endl;
         cout <<  "TEMPO [" << z << "]: " << tempoTotal << endl;
         soma += tempoTotal;

@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
                 } 
                 steady_clock::time_point end = steady_clock::now();
 
-                out << "TEMPO " + to_string(duration_cast<milliseconds>(end - begin).count()) + "\n";
+                out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
                 // cout << "\n \n" << "Tempo: " << duration_cast<microseconds>(end - begin).count() << " [us]" << endl;
 
                 // out << conteudoArquivoPorProcessso;
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
         }
         cout <<  "TEMPO [" << z << "]: " << tempoTotal << endl;
         soma += tempoTotal;
-        out << "TEMPO " << tempoTotal << endl;
+        out << "TEMPO " << tempoTotal / pow(10, 6) << endl;
         out.close();
     }
     cout << "MEDIA: " << soma/10 << endl;
