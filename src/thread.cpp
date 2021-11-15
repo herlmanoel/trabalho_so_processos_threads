@@ -37,13 +37,12 @@ void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matr
     string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
     ofstream out(nomeArquivo);
 
-    string conteudoArquivoPorProcessso = "";
-
     steady_clock::time_point begin = steady_clock::now();
     for(int j = inicio; j <= fim; j++) {
-        int linha = j / 6;
-        int coluna = j % 6; 
+        int linha = j / m1->linhas;
+        int coluna = j % m2->colunas; 
         int elemento = calculaElemento(m1, m2, linha, coluna);
+        // int elemento = 2;
 
 
         out <<  
@@ -57,8 +56,7 @@ void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matr
     steady_clock::time_point end = steady_clock::now();
 
     out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
-
-    out << conteudoArquivoPorProcessso;
+    // cout << i << endl;
     out.close();  
 
     pthread_exit(NULL);  
@@ -70,49 +68,57 @@ void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matr
 // cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ thread.cpp -o thread -pthread && "/home/herlmanoel/dev/SO/exercicio01/src/"thread arquivo01.txt arquivo02.txt 3
 int main(int argc, char *argv[]) {
     double soma = 0;
+    string arquivo_matriz_01 = argv[1];
+    string arquivo_matriz_02 = argv[2];
+    int P = atoi(argv[3]);
+    
+        
+
+    string pathBase = "data/";
+    string pathParticoes = pathBase + "particoes/";
+
+    arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
+    arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
+
+    // int P = 4;
+    // string arquivo_matriz_01 = "arquivo01.txt";
+    // string arquivo_matriz_02 = "arquivo02.txt";
+
+    Matriz* m1 = new Matriz(arquivo_matriz_01);
+    Matriz* m2 = new Matriz(arquivo_matriz_02);
+
+    // m1->printMatriz();
+    // m2->printMatriz();
+
+    int qtdElementos = m1->linhas * m2->colunas;
+    int qtdThreads = qtdElementos / P;
+    int resto = qtdElementos % P;
+
+    if(resto > 0) {
+        qtdThreads++;
+    }
+    
     for (int z = 1; z <= 10; z++) {
-        string arquivo_matriz_01 = argv[1];
-        string arquivo_matriz_02 = argv[2];
-        int P = atoi(argv[3]);
-
-        string pathBase = "data/";
-        string pathParticoes = pathBase + "particoes/";
-
-        arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
-        arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
-
-        // int P = 4;
-        // string arquivo_matriz_01 = "arquivo01.txt";
-        // string arquivo_matriz_02 = "arquivo02.txt";
-
-        Matriz* m1 = new Matriz(arquivo_matriz_01);
-        Matriz* m2 = new Matriz(arquivo_matriz_02);
-
-        // m1->printMatriz();
-        // m2->printMatriz();
-
-        int qtdElementos = m1->linhas * m2->colunas;
-        int qtdThreads = qtdElementos  / P;
-        int resto = qtdElementos % P;
-
-        if(resto > 0) {
-            qtdThreads++;
-        }
-
         thread *threads = new thread[qtdThreads];
         int status;
         void *retorno_thread;
+
+        
 
         for(int i = 0; i < qtdThreads; i++) {
             threads[i] = thread(calcularThread, i, P, qtdElementos, pathParticoes, m1, m2);
         }  
 
+        // cout << "aqui " << endl;
+
 
         for(int i = 0; i < qtdThreads; i++) {
             threads[i].join();
         }
+
         
-        delete [] threads;
+        
+        
 
         // concatena os arquivos 
         string nomeArquivoCompleto = pathBase + "matriz_result.txt";
@@ -141,7 +147,14 @@ int main(int argc, char *argv[]) {
         cout <<  "TEMPO [" << z << "]: " << tempoTotal << endl;
         soma += tempoTotal;
         out.close(); 
+
+        delete [] threads;
+        
+        
     }
+
+    delete m1;
+    delete m2;
 
     cout << "MEDIA: " << soma/10 << endl;
     

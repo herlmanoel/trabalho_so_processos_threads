@@ -79,8 +79,8 @@ int main(int argc, char *argv[]) {
 
                 steady_clock::time_point begin = steady_clock::now();
                 for(int j = inicio; j <= fim; j++) {
-                    int linha = j / 6;
-                    int coluna = j % 6; 
+                    int linha = j / m1->linhas;
+                    int coluna = j % m2->colunas; 
                     
                     int elemento = calculaElemento(m1, m2, linha, coluna);
                     
