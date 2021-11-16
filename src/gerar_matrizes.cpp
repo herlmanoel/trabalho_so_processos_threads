@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
     Matriz* m2 = new Matriz();
 
 
-    m1->gerarMatrizArquivo(100, 100, "data/input/arquivo01.txt");
-    m2->gerarMatrizArquivo(100, 100, "data/input/arquivo02.txt");
+    m1->gerarMatrizArquivo(550, 550, "data/input/arquivo01.txt");
+    m2->gerarMatrizArquivo(550, 550, "data/input/arquivo02.txt");
 
     
     return 0;

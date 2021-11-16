@@ -2,6 +2,11 @@
     "files.associations": {
         "*.dat": "csv (pipe)",
         "*.csv": "csv (semicolon)",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "random": "cpp",
+        "chrono": "cpp",
+        "thread": "cpp",
+        "new": "cpp"
     }
 }

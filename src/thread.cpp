@@ -22,9 +22,8 @@ int calculaElemento(Matriz* m1, Matriz* m2, int linha, int coluna) {
 
 
 //  cd "/home/herlmanoel/dev/SO/exercicio01/src/" && g++ thread.cpp -o thread -pthread && "/home/herlmanoel/dev/SO/exercicio01/src/"thread arquivo01.txt arquivo02.txt 3
-void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matriz * m1, Matriz * m2) {
-    
 
+void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matriz * m1, Matriz * m2) {
     int inicio = i;
     int fim = P - 1;
 
@@ -54,11 +53,8 @@ void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matr
         }
     } 
     steady_clock::time_point end = steady_clock::now();
-
     out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
-    // cout << i << endl;
     out.close();  
-
     pthread_exit(NULL);  
 }
 
@@ -80,9 +76,6 @@ int main(int argc, char *argv[]) {
     arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
     arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
 
-    // int P = 4;
-    // string arquivo_matriz_01 = "arquivo01.txt";
-    // string arquivo_matriz_02 = "arquivo02.txt";
 
     Matriz* m1 = new Matriz(arquivo_matriz_01);
     Matriz* m2 = new Matriz(arquivo_matriz_02);
@@ -99,28 +92,19 @@ int main(int argc, char *argv[]) {
     }
     
     for (int z = 1; z <= 10; z++) {
+
         thread *threads = new thread[qtdThreads];
         int status;
         void *retorno_thread;
 
-        
-
         for(int i = 0; i < qtdThreads; i++) {
             threads[i] = thread(calcularThread, i, P, qtdElementos, pathParticoes, m1, m2);
-        }  
-
-        // cout << "aqui " << endl;
-
+        }
 
         for(int i = 0; i < qtdThreads; i++) {
             threads[i].join();
         }
 
-        
-        
-        
-
-        // concatena os arquivos 
         string nomeArquivoCompleto = pathBase + "matriz_result.txt";
         ofstream out(nomeArquivoCompleto);
         double tempoTotal = 0.0;
@@ -129,7 +113,6 @@ int main(int argc, char *argv[]) {
             string filename(nomeArquivo);
             string line;
             ifstream input_file(filename);
-
             int count = 0;
             while (getline(input_file, line)){
 

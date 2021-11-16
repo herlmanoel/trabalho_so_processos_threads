@@ -38,15 +38,8 @@ int main(int argc, char *argv[]) {
         arquivo_matriz_01 = pathBase + "input/" + arquivo_matriz_01;
         arquivo_matriz_02 = pathBase + "input/" + arquivo_matriz_02;
 
-        // int P = 4;
-        // string arquivo_matriz_01 = "arquivo01.txt";
-        // string arquivo_matriz_02 = "arquivo02.txt";
-
         Matriz* m1 = new Matriz(arquivo_matriz_01);
         Matriz* m2 = new Matriz(arquivo_matriz_02);
-
-        // m1->printMatriz();
-        // m2->printMatriz();
 
         int qtdElementos = m1->linhas * m2->colunas;
         int qtdProcessos = qtdElementos  / P;
@@ -62,20 +55,16 @@ int main(int argc, char *argv[]) {
             processo_filho[i] = fork();
 
             if(processo_filho[i] == (pid_t) 0) {
-
                 int inicio = i;
                 int fim = P - 1;
-                
                 if (inicio > 0) {
                     inicio = i * P;
                     fim = ((i+1) * P) - 1;
-                }
-
-                
-                string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
+                }                
+                string nomeArquivo = pathParticoes 
+                    + to_string(m1->linhas) + "_" + to_string(m2->colunas) 
+                    + "_" + to_string(i) + "_arquivo"+ ".txt";
                 ofstream out(nomeArquivo);
-
-                string conteudoArquivoPorProcessso = "";
 
                 steady_clock::time_point begin = steady_clock::now();
                 for(int j = inicio; j <= fim; j++) {
@@ -94,17 +83,14 @@ int main(int argc, char *argv[]) {
                     }
                 } 
                 steady_clock::time_point end = steady_clock::now();
-
                 out << "TEMPO " + to_string(duration_cast<microseconds>(end - begin).count()) + "\n";
-                // cout << "\n \n" << "Tempo: " << duration_cast<microseconds>(end - begin).count() << " [us]" << endl;
-
-                // out << conteudoArquivoPorProcessso;
                 out.close(); 
                 exit(0);
-            } else  {
-                wait(NULL);
             }
         }  
+        for(int i = 0; i < qtdProcessos; i++) {
+            wait(NULL);
+        }
 
         // concatena os arquivos 
         string nomeArquivoCompleto = pathBase + "matriz_result.txt";
