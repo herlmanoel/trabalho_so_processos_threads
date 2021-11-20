@@ -26,14 +26,13 @@ int calculaElemento(Matriz* m1, Matriz* m2, int linha, int coluna) {
 void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matriz * m1, Matriz * m2) {
     int inicio = i;
     int fim = P - 1;
-
     if (inicio > 0) {
         inicio = i * P;
         fim = ((i+1) * P) - 1;
     }
 
-
-    string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
+    string nomeArquivo = pathParticoes + to_string(m1->linhas) + "_" + 
+    to_string(m2->colunas) + "_" + to_string(i) + "_arquivo"+ ".txt";
     ofstream out(nomeArquivo);
 
     steady_clock::time_point begin = steady_clock::now();
@@ -41,8 +40,6 @@ void * calcularThread(int i, int P, int qtdElementos, string pathParticoes, Matr
         int linha = j / m1->linhas;
         int coluna = j % m2->colunas; 
         int elemento = calculaElemento(m1, m2, linha, coluna);
-        // int elemento = 2;
-
 
         out <<  
             to_string(linha) + "_" + to_string(coluna) +
@@ -67,8 +64,6 @@ int main(int argc, char *argv[]) {
     string arquivo_matriz_01 = argv[1];
     string arquivo_matriz_02 = argv[2];
     int P = atoi(argv[3]);
-    
-        
 
     string pathBase = "data/";
     string pathParticoes = pathBase + "particoes/";
@@ -79,9 +74,6 @@ int main(int argc, char *argv[]) {
 
     Matriz* m1 = new Matriz(arquivo_matriz_01);
     Matriz* m2 = new Matriz(arquivo_matriz_02);
-
-    // m1->printMatriz();
-    // m2->printMatriz();
 
     int qtdElementos = m1->linhas * m2->colunas;
     int qtdThreads = qtdElementos / P;

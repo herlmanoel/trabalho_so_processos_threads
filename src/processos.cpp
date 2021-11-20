@@ -53,7 +53,6 @@ int main(int argc, char *argv[]) {
 
         for(int i = 0; i < qtdProcessos; i++) {
             processo_filho[i] = fork();
-
             if(processo_filho[i] == (pid_t) 0) {
                 int inicio = i;
                 int fim = P - 1;
@@ -65,15 +64,12 @@ int main(int argc, char *argv[]) {
                     + to_string(m1->linhas) + "_" + to_string(m2->colunas) 
                     + "_" + to_string(i) + "_arquivo"+ ".txt";
                 ofstream out(nomeArquivo);
-
                 steady_clock::time_point begin = steady_clock::now();
                 for(int j = inicio; j <= fim; j++) {
                     int linha = j / m1->linhas;
                     int coluna = j % m2->colunas; 
-                    
+                
                     int elemento = calculaElemento(m1, m2, linha, coluna);
-                    
-
                     out <<  
                         to_string(linha) + "_" + to_string(coluna) +
                         " " + to_string(elemento)  + "\n";
@@ -114,12 +110,14 @@ int main(int argc, char *argv[]) {
                 out << line << endl;
             }
         }
-        cout <<  "TEMPO [" << z << "]: " << tempoTotal << endl;
+        tempoTotal = tempoTotal / pow(10, 6);
         soma += tempoTotal;
-        out << "TEMPO " << tempoTotal / pow(10, 6) << endl;
+        cout <<  "TEMPO [" << z << "]: " << tempoTotal << endl;
+        out << "TEMPO " << tempoTotal  << endl;
         out.close();
     }
-    cout << "MEDIA: " << soma/10 << endl;
+    float media10 = soma/10;
+    cout << "MEDIA: " << media10 << endl;
 
     return 0;
 }
